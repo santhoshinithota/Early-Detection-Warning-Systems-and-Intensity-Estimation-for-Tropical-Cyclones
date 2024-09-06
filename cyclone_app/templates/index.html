@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>TwistCNN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Ubuntu&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+    integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+</head>
+
+<body>
+
+  <section id="title" class="stacking-slide">
+
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="" style="color: black; z-index: 200;">TwistCNN</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto">
+          </ul>
+        </div>
+
+      </nav>
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="big-heading" style="color: black;">Be Prepared, Be Safe: Your Cyclone Information Hub</h1>
+          <a type="button" class="btn btn-dark btn-lg download-button" href="#form"
+            style="background-color: orange; color: black; border: transparent;">Predict using image</a>
+          <a type="button" class="btn btn-dark btn-lg download-button" href="#form1"
+            style="background-color: orange; color: black; border: transparent;">Predict using metadata</a>
+          <a type="button" class="btn btn-dark btn-lg download-button" style="background-color: orange; color: black; border: transparent;" href="#windy">Live</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="Form-back scroll-area stacking-slide" id="form">
+
+    <div class="rain-effect back-row-toggle splat-toggle">
+      <div class="rain front-row"></div>
+      <div class="rain back-row"></div>
+    </div>
+    <div id="form-area">
+      <form method="post" action="{{url_for('index')}}#form" class="row g-5 col-md-7 p-3 mb-2  text-dark border form_prop" enctype="multipart/form-data">
+      
+        <div class="col-md-12" style="align-items: center; align-self: center; align-content: center;">
+          <div id="uploadPreview" style="align-items: center; align-self: center; align-content: center;">
+            {% if filename %}
+            <div> <img src="{{url_for('static', filename='uploads/' + filename)}}"></div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <form class="p-3text-center" action="/" , method="post" enctype="multipart/form-data">
+          <div class="custom-file d-inline-flex p-2 bd-highlight" style="align-items: center; display: flex; align-self: center; align-content: center;"">
+              <label class=" custom-file-label" for="imagefile">Upload Image (jpeg/png/jpg):</label>
+              <input style="margin-left:20px;" type="file" name="imagefile" id="imagefile" accept=".jpeg, .jpg, .png"required>
+          </div>
+
+          <center>
+            {% if prediction %}
+            <div>
+              <i class="fas fa-solid fa-check check"></i>
+              <span class="text text-1">Processing Success</span>
+              <div class="text text-2"> Calculated Intensity: {{prediction}} knots</div>
+              <div class="text text-3"> Cyclone category: {{classification_result}}</div>
+            </div>
+            {% endif %}
+            
+            <input style="font-size:20px; background-color: orange; border-color: transparent; color:black; "
+              class="btn btn-primary mt-3" type="submit" value="Compute Intensity" " class=" btn btn-primary mt-3"
+              type="submit" value="Compute Intensity">
+
+          </center>
+        </form>
+    <button type="button" class="btn btn-primary" id="liveToastBtn" style="display:none">Show live toast</button>
+    </form>
+    <div class="waves" style="height:250px"></div>
+    </div>
+
+  </section>
+
+  <section class="Form-back scroll-area stacking-slide" id="form1">
+
+    <div class="rain-effect back-row-toggle splat-toggle">
+      <div class="rain front-row"></div>
+      <div class="rain back-row"></div>
+    </div>
+
+    <div id="form-area1">
+      <!-- <h3>Form</h3> -->
+      <form method="post" action="/postmetadata"
+        class="row g-5 col-md-7 p-3 mb-2  text-dark border form_prop" enctype="multipart/form-data">
+        <div class="col-md-6">
+          <label for="Lat" class="form-label">Latitude</label>
+          <input type="number" step="0.01" class="form-control rounded" id="Lat" name="latitude" value={{latitude}}>
+        </div>
+        <div class="col-md-6">
+          <label for="Lng" class="form-label">Longitude</label>
+          <input type="number" step="0.01" class="form-control rounded" id="Lng" name="longitude" value={{longitude}}>
+        </div>
+        <div class="col-md-6">
+          <label for="LWSW" class="form-label">Low Wind (34 kt) Southwest Wind Radii (nautical miles)</label>
+          <input type="number" step="0.01" class="form-control rounded" id="Lat" name="LWSW" value={{LWSW}}>
+        </div>
+        <div class="col-md-6">
+          <label for="MWNE" class="form-label">Moderate Wind (50 kt) Northeast Wind Radii (nautical miles)</label>
+          <input type="number" step="0.01" class="form-control rounded" id="Lng" name="MWNE" value={{MWNE}}>
+        </div>
+        <div class="col-md-6">
+          <label for="MWSE" class="form-label">Moderate Wind (50 kt) Southeast Wind Radii (nautical miles)</label>
+          <input type="number" step="0.01" class="form-control rounded" id="Lat" name="MWSE" value={{MWSE}}>
+        </div>
+        <div class="col-md-6">
+          <label for="HWNW" class="form-label">High Wind (64 kt) Northwest Wind Radii (nautical miles)</label>
+          <input type="number" step="0.01" class="form-control rounded" id="Lng" name="HWNW" value={{HWNW}}>
+        </div>
+        <div>
+          <form class="p-3text-center" action="/postmetadata" , method="post" enctype="multipart/form-data">
+            <div class="custom-file d-inline-flex p-2 bd-highlight">
+            </div>
+            <center>
+              {% if prediction_metadata %}
+              <div style="margin-top: 20px">
+                <i class="fas fa-solid fa-check check"></i>
+                <span class="text text-1">Success.</span>
+                <div class="text text-2"> Cyclone Detected: {{isCyclone}}</div>
+                <div class="text text-2"> Cyclone Classification: {{prediction_metadata}}</div>
+              </div>
+              {% endif %}
+              <input style="font-size:20px; background-color: orange; border-color: transparent; color:black; "
+                class="btn btn-primary mt-3" type="submit" value="Compute Intensity" " class=" btn btn-primary mt-3"
+                type="submit" value="Compute Intensity">
+            </center>
+          </form>
+        </div>
+        <button type="button" class="btn btn-primary" id="liveToastBtn" style="display:none">Show live toast</button>
+      </form>
+      <div class="waves" style="height:250px"></div>
+    </div>
+
+  </section>
+</body>
+
+</html>
